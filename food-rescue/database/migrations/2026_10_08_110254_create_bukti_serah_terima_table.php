@@ -11,9 +11,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('klaim_id')->constrained('klaim_donasi')->cascadeOnDelete();
             $table->foreignId('relawan_id')->constrained('users')->cascadeOnDelete();
-            $table->string('foto');
+            $table->string('foto_bukti');
             $table->text('catatan')->nullable();
             $table->timestamp('dikonfirmasi_at')->nullable();
+            $table->timestamp('waktu_serah_terima')->useCurrent();
             $table->timestamps();
         });
     }

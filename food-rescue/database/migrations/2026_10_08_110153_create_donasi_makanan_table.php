@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('judul');
             $table->text('deskripsi')->nullable();
             $table->unsignedInteger('porsi');
-            $table->unsignedInteger('porsi_tersisa');
+            $table->unsignedInteger('porsi_tersisa')->default(0);
             $table->string('lokasi');
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();

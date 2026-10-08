@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\KategoriMakananController;
 use App\Http\Controllers\Api\KlaimDonasiController;
 use App\Http\Controllers\Api\TitikLokasiController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\BuktiSerahTerimaController;
+use App\Http\Controllers\Api\UlasanDonasiController;
+use App\Http\Controllers\Api\LaporanKelayakanController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Publik
@@ -42,6 +45,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('titik-lokasi/{id}', [TitikLokasiController::class, 'update']);
         Route::delete('titik-lokasi/{id}', [TitikLokasiController::class, 'destroy']);
     });
+
+    // --- MODUL NESA: Bukti Serah Terima, Ulasan, & Laporan Kelayakan ---
+    Route::get('bukti-serah-terima', [BuktiSerahTerimaController::class, 'index']);
+    Route::post('bukti-serah-terima', [BuktiSerahTerimaController::class, 'store']);
+    Route::get('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'show']);
+    Route::delete('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'destroy']);
+
+    Route::get('ulasan', [UlasanDonasiController::class, 'index']);
+    Route::post('ulasan', [UlasanDonasiController::class, 'store']);
+    Route::get('ulasan/{id}', [UlasanDonasiController::class, 'show']);
+    Route::put('ulasan/{id}', [UlasanDonasiController::class, 'update']);
+    Route::delete('ulasan/{id}', [UlasanDonasiController::class, 'destroy']);
+
+    Route::get('laporan-kelayakan', [LaporanKelayakanController::class, 'index']);
+    Route::post('laporan-kelayakan', [LaporanKelayakanController::class, 'store']);
+    Route::get('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'show']);
+    Route::put('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'update']);
+    Route::delete('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'destroy']);
 
     // --- MODUL HANA & NESA ---
     Route::get('donasi', [DonasiMakananController::class, 'index']);

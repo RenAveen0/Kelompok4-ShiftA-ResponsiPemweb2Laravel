@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('foto')->nullable();
             $table->enum('status', ['baru', 'ditinjau', 'selesai'])->default('baru');
             $table->timestamps();
+            $table->foreignId('donasi_id')->constrained('donasi_makanan')->cascadeOnDelete();
         });
     }
 
