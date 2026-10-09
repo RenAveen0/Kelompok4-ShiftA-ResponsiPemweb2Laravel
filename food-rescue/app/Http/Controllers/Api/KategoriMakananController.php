@@ -59,3 +59,4 @@ class KategoriMakananController extends Controller
         return response()->json(['sukses' => true, 'pesan' => 'Kategori berhasil dihapus.']);
     }
 }
+
