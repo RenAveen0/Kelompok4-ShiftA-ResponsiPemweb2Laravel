@@ -11,12 +11,11 @@
 
 ## 👥 Anggota Kelompok
 
-| No | Nama Lengkap | NIM | Shift Awal | Shift Akhir | Jobdesk / Kontribusi | Link Video Penjelasan |
-|---|---|---|---|---|---|---|
-| 1 | Hana Nur Fathiyyah | H1H024017 | Shift A | Shift A | [Contoh: CRUD Fitur Reservasi & Autentikasi] | [YouTube/Drive](https://...) |
-| 2 | Difa' Tamaya Maulidina Adz Dzikro | H1H024019 | Shift B | Shift A |  Modul Master Data & Pengguna (CRUD User & Profil, CRUD Kategori Makanan, CRUD Titik Lokasi) | [YouTube/Drive](https://...) |
-| 3 | Nesa Dwi Cahyani | H1H024024 | [Shift Awal] | [Shift Akhir] | [Jobdesk Fitur] | [YouTube/Drive](https://...) |
-
+| No | Nama Lengkap                      |    NIM    | Shift Awal | Shift Akhir | Jobdesk / Kontribusi                                                                                     | Link Video Penjelasan |
+|:--:|:----------------------------------|:---------:|:----------:|:-----------:|:---------------------------------------------------------------------------------------------------------|:---------------------:|
+| 1  | Hana Nur Fathiyyah                | H1H024017 |  Shift A   |   Shift A   | Modul Utama Donasi & Klaim (CRUD Donasi Makanan, CRUD Klaim Donasi, CRUD Penugasan Relawan)              | [YouTube/Drive](https://...) |
+| 2  | Difa' Tamaya Maulidina Adz Dzikro | H1H024019 |  Shift A   |   Shift A   | Modul Master Data & Pengguna (CRUD User & Profil, CRUD Kategori Makanan, CRUD Titik Lokasi)             | [YouTube/Drive](https://...) |
+| 3  | Nesa Dwi Cahyani                  | H1H024024 |  Shift A   |   Shift A   | Modul Tindak Lanjut & Feedback (CRUD Bukti Serah Terima, CRUD Ulasan & Rating, CRUD Laporan Kelayakan) | [YouTube/Drive](https://...) |
 ---
 
 ## 📖 Deskripsi Aplikasi
@@ -27,9 +26,9 @@
 ## ⚙️ Penjelasan Teknis
 
 ### 1. Teknologi (Tech Stack)
-- **Backend:** Laravel 13 (PHP 8.4)[cite: 6]
-- **API Architecture:** RESTful API[cite: 1, 6]
-- **Database:** MySQL / MariaDB[cite: 5, 6]
+- **Backend:** Laravel 13 (PHP 8.4)
+- **API Architecture:** RESTful API
+- **Database:** MySQL / MariaDB
 - **Authentication & Security:** Laravel Sanctum (Token-based Authentication) & Middleware Role Access Control
 - **Realtime Notification:** Laravel Reverb / WebSockets
 
@@ -39,8 +38,14 @@
   - **CRUD Pengguna & Profil:** Manajemen profil pengguna, koordinat alamat, serta pengelolaan data user oleh Admin.
   - **CRUD Kategori Makanan:** Pengelolaan jenis makanan, deskripsi, panduan penyimpanan, dan batas jam simpan.
   - **CRUD Titik Lokasi Penjemputan:** Pengelolaan daftar posko/zona penjemputan makanan beserta status aktifnya.
-- **Modul Utama Donasi & Klaim (Hana):** [Modul Utama Donasi dan Klaim]
-- **Modul Tindak Lanjut & Feedback (Nesa):** [Modul Tindak Lanjut dan Feedback]
+- **Modul Utama Donasi & Klaim (Hana):**
+  - **CRUD Donasi Makanan:** Pengelolaan data postingan donasi makanan oleh donatur.
+  - **CRUD Klaim Donasi:** Pengajuan dan pengelolaan pengklaiman makanan oleh penerima.
+  - **CRUD Penugasan Relawan:** Penugasan relawan untuk penjemputan dan pengantaran donasi.
+- **Modul Tindak Lanjut & Feedback (Nesa):**
+  - **CRUD Bukti Serah Terima:** Unggah foto dan catatan verifikasi penyerahan donasi oleh relawan/penerima.
+  - **CRUD Ulasan & Rating:** Pengisian nilai kepuasan (1-5) dan masukan atas donasi yang telah diterima.
+  - **CRUD Laporan Kelayakan:** Pelaporan jika ditemukan kondisi makanan yang tidak layak atau bungkus rusak.
 
 ### 3. Skema Data Singkat
 - `users` (1 : N) `donasi_makanan`
@@ -50,7 +55,6 @@
 - `klaim_donasi` (1 : 1) `penugasan_relawan`
 - `penugasan_relawan` (1 : 1) `bukti_serah_terima`
 - `klaim_donasi` (1 : 1) `ulasan_donasi`
-
 
 ---
 
@@ -73,4 +77,3 @@ php artisan migrate --seed
 
 # Jalankan development server
 php artisan serve
-
