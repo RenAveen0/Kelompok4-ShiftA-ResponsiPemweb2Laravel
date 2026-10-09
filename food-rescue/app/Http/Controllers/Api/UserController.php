@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // Admin: Lihat daftar seluruh pengguna
+    // Admin : Lihat daftar seluruh pengguna
     public function index(): JsonResponse
     {
         $users = User::latest()->paginate(10);
@@ -44,7 +44,7 @@ class UserController extends Controller
         ]);
     }
 
-    // Admin: Hapus pengguna
+    // Admin : Hapus pengguna
     public function destroy(int $id): JsonResponse
     {
         $user = User::findOrFail($id);
