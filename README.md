@@ -1,4 +1,4 @@
-# FoodRescue API
+# 🍲 FoodRescue API
 > Platform Penyelamatan Limbah Pangan & Penyaluran Donasi Makanan Realtime
 
 ---
@@ -11,11 +11,12 @@
 
 ## 👥 Anggota Kelompok
 
-| No | Nama Lengkap                      |    NIM    | Shift Awal | Shift Akhir | Jobdesk / Kontribusi                                                                                     | Link Video Penjelasan |
+| No | Nama Lengkap | NIM | Shift Awal | Shift Akhir | Jobdesk / Kontribusi | Link Video Penjelasan |
 |:--:|:----------------------------------|:---------:|:----------:|:-----------:|:---------------------------------------------------------------------------------------------------------|:---------------------:|
-| 1  | Hana Nur Fathiyyah                | H1H024017 |  Shift A   |   Shift A   | Modul Utama Donasi & Klaim (CRUD Donasi Makanan, CRUD Klaim Donasi, CRUD Penugasan Relawan)              | [YouTube/Drive](https://...) |
-| 2  | Difa' Tamaya Maulidina Adz Dzikro | H1H024019 |  Shift A   |   Shift A   | Modul Master Data & Pengguna (CRUD User & Profil, CRUD Kategori Makanan, CRUD Titik Lokasi)             | https://youtu.be/srg_wnBVDhw|
-| 3  | Nesa Dwi Cahyani                  | H1H024024 |  Shift A   |   Shift A   | Modul Tindak Lanjut & Feedback (CRUD Bukti Serah Terima, CRUD Ulasan & Rating, CRUD Laporan Kelayakan) | [YouTube/Drive](https://...) |
+| 1 | Hana Nur Fathiyyah | H1H024017 | Shift A | Shift A | Modul Utama Donasi & Klaim (CRUD Donasi Makanan, CRUD Klaim Donasi, CRUD Penugasan Relawan) | [YouTube/Drive](https://...) |
+| 2 | Difa' Tamaya Maulidina Adz Dzikro | H1H024019 | Shift A | Shift A | Modul Master Data & Pengguna (CRUD User & Profil, CRUD Kategori Makanan, CRUD Titik Lokasi) | https://youtu.be/srg_wnBVDhw |
+| 3 | Nesa Dwi Cahyani | H1H024024 | Shift A | Shift A | Modul Tindak Lanjut & Feedback (CRUD Bukti Serah Terima, CRUD Ulasan & Rating, CRUD Laporan Kelayakan) | [YouTube/Drive](https://...) |
+
 ---
 
 ## 📖 Deskripsi Aplikasi
@@ -39,8 +40,8 @@
   - **CRUD Kategori Makanan:** Pengelolaan jenis makanan, deskripsi, panduan penyimpanan, dan batas jam simpan.
   - **CRUD Titik Lokasi Penjemputan:** Pengelolaan daftar posko/zona penjemputan makanan beserta status aktifnya.
 - **Modul Utama Donasi & Klaim (Hana):**
-  - **CRUD Donasi Makanan:** Pengelolaan data postingan donasi makanan oleh donatur.
-  - **CRUD Klaim Donasi:** Pengajuan dan pengelolaan pengklaiman makanan oleh penerima.
+  - **CRUD Donasi Makanan:** Pengelolaan data postingan donasi makanan oleh donatur (dilengkapi event Reverb).
+  - **CRUD Klaim Donasi:** Pengajuan dan pengelolaan pengklaiman makanan oleh penerima (dilengkapi `lockForUpdate` & `DB::transaction`).
   - **CRUD Penugasan Relawan:** Penugasan relawan untuk penjemputan dan pengantaran donasi.
 - **Modul Tindak Lanjut & Feedback (Nesa):**
   - **CRUD Bukti Serah Terima:** Unggah foto dan catatan verifikasi penyerahan donasi oleh relawan/penerima.
@@ -62,8 +63,8 @@
 
 ```bash
 # Clone repository
-git clone <URL_REPOSITORY>
-cd food-rescue
+git clone [https://github.com/RenAveen0/Kelompok4-ShiftA-ResponsiPemweb2Laravel.git](https://github.com/RenAveen0/Kelompok4-ShiftA-ResponsiPemweb2Laravel.git)
+cd Kelompok4-ShiftA-ResponsiPemweb2Laravel
 
 # Install dependensi PHP
 composer install

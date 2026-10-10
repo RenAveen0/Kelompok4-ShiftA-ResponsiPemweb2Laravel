@@ -57,4 +57,61 @@ class DonasiMakananController extends Controller
             'data'   => $donasi
         ], 201);
     }
+
+    public function show(int $id): JsonResponse
+    {
+        $donasi = DonasiMakanan::with(['user', 'kategori', 'titikLokasi'])->find($id);
+
+        if (!$donasi) {
+            return response()->json(['sukses' => false, 'pesan' => 'Donasi tidak ditemukan.'], 404);
+        }
+
+        return response()->json(['sukses' => true, 'data' => $donasi]);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $donasi = DonasiMakanan::find($id);
+
+        if (!$donasi) {
+            return response()->json(['sukses' => false, 'pesan' => 'Donasi tidak ditemukan.'], 404);
+        }
+
+        $validated = $request->validate([
+            'kategori_id'     => ['sometimes', 'exists:kategori_makanan,id'],
+            'titik_lokasi_id' => ['nullable', 'exists:titik_lokasi,id'],
+            'judul'           => ['sometimes', 'string', 'max:150'],
+            'deskripsi'       => ['nullable', 'string'],
+            'porsi'           => ['sometimes', 'integer', 'min:1'],
+            'lokasi'          => ['sometimes', 'string'],
+            'batas_waktu'     => ['nullable', 'date'],
+            'status'          => ['sometimes', 'in:tersedia,habis,dibatalkan'],
+        ]);
+
+        if (isset($validated['porsi'])) {
+            $selisih = $validated['porsi'] - $donasi->porsi;
+            $validated['porsi_tersisa'] = max(0, $donasi->porsi_tersisa + $selisih);
+        }
+
+        $donasi->update($validated);
+
+        return response()->json([
+            'sukses' => true,
+            'pesan'  => 'Donasi makanan berhasil diperbarui.',
+            'data'   => $donasi
+        ]);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $donasi = DonasiMakanan::find($id);
+
+        if (!$donasi) {
+            return response()->json(['sukses' => false, 'pesan' => 'Donasi tidak ditemukan.'], 404);
+        }
+
+        $donasi->delete();
+
+        return response()->json(['sukses' => true, 'pesan' => 'Donasi makanan berhasil dihapus.']);
+    }
 }

@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class KlaimDonasiController extends Controller
 {
+    public function index(): JsonResponse
+    {
+        $klaim = KlaimDonasi::with(['donasi', 'penerima'])->latest()->get();
+
+        return response()->json([
+            'sukses' => true,
+            'data'   => $klaim
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -19,7 +29,6 @@ class KlaimDonasiController extends Controller
         ]);
 
         $klaim = DB::transaction(function () use ($request) {
-            // Mengunci baris data donasi agar tidak dibaca/diubah proses lain secara bersamaan
             $donasi = DonasiMakanan::lockForUpdate()->findOrFail($request->donasi_id);
 
             if ($donasi->status !== 'tersedia') {
@@ -53,5 +62,50 @@ class KlaimDonasiController extends Controller
             'pesan'  => 'Klaim donasi berhasil diajukan.',
             'data'   => $klaim->load('donasi')
         ], 201);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $klaim = KlaimDonasi::with(['donasi', 'penerima'])->find($id);
+
+        if (!$klaim) {
+            return response()->json(['sukses' => false, 'pesan' => 'Klaim donasi tidak ditemukan.'], 404);
+        }
+
+        return response()->json(['sukses' => true, 'data' => $klaim]);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $klaim = KlaimDonasi::find($id);
+
+        if (!$klaim) {
+            return response()->json(['sukses' => false, 'pesan' => 'Klaim donasi tidak ditemukan.'], 404);
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:diajukan,disetujui,ditolak,selesai'],
+        ]);
+
+        $klaim->update($validated);
+
+        return response()->json([
+            'sukses' => true,
+            'pesan'  => 'Status klaim donasi berhasil diperbarui.',
+            'data'   => $klaim
+        ]);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $klaim = KlaimDonasi::find($id);
+
+        if (!$klaim) {
+            return response()->json(['sukses' => false, 'pesan' => 'Klaim donasi tidak ditemukan.'], 404);
+        }
+
+        $klaim->delete();
+
+        return response()->json(['sukses' => true, 'pesan' => 'Klaim donasi berhasil dibatalkan.']);
     }
 }
