@@ -16,6 +16,14 @@ class UserController extends Controller
         return response()->json(['sukses' => true, 'data' => $users]);
     }
 
+    // Admin : Daftar relawan (untuk dropdown penugasan)
+    public function relawan(): JsonResponse
+    {
+        $relawan = User::where('role', 'relawan')->orderBy('name')->get(['id', 'name', 'no_telepon']);
+
+        return response()->json(['sukses' => true, 'data' => $relawan]);
+    }
+
     // Lihat profil pengguna yang sedang login
     public function profil(Request $request): JsonResponse
     {

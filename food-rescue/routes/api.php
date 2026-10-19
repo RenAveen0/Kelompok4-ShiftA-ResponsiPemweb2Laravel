@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Khusus Peran Admin (Difa)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('dasbor', DasborController::class);
+        Route::get('relawan', [UserController::class, 'relawan']);
         
         Route::get('users', [UserController::class, 'index']);
         Route::delete('users/{id}', [UserController::class, 'destroy']);
@@ -55,8 +56,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- MODUL HANA: Utama Donasi & Klaim ---
     Route::apiResource('donasi-makanan', DonasiMakananController::class);
-    Route::apiResource('klaim-donasi', KlaimDonasiController::class);
-    Route::apiResource('penugasan-relawan', PenugasanRelawanController::class);
+
+    // Klaim donasi: ajukan = penerima, ubah status/hapus = admin
+    Route::get('klaim-donasi', [KlaimDonasiController::class, 'index']);
+    Route::get('klaim-donasi/{id}', [KlaimDonasiController::class, 'show']);
+    Route::post('klaim-donasi', [KlaimDonasiController::class, 'store'])->middleware('role:penerima');
+    Route::put('klaim-donasi/{id}', [KlaimDonasiController::class, 'update'])->middleware('role:admin');
+    Route::delete('klaim-donasi/{id}', [KlaimDonasiController::class, 'destroy'])->middleware('role:admin');
+
+    // Penugasan relawan: relawan (tugas sendiri) dan admin
+    Route::middleware('role:relawan,admin')->group(function () {
+        Route::get('penugasan-relawan', [PenugasanRelawanController::class, 'index']);
+        Route::get('penugasan-relawan/{id}', [PenugasanRelawanController::class, 'show']);
+        Route::post('penugasan-relawan', [PenugasanRelawanController::class, 'store']);
+        Route::put('penugasan-relawan/{id}', [PenugasanRelawanController::class, 'update']);
+    });
+    Route::delete('penugasan-relawan/{id}', [PenugasanRelawanController::class, 'destroy'])->middleware('role:admin');
 
     // --- MODUL NESA: Bukti Serah Terima, Ulasan, & Laporan Kelayakan ---
     Route::get('bukti-serah-terima', [BuktiSerahTerimaController::class, 'index']);

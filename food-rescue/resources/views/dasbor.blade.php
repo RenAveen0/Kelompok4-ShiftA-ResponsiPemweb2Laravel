@@ -69,6 +69,10 @@
                 @include('partials.icon', ['name' => 'inbox', 'class' => 'size-4'])
                 <span id="label-klaim">Klaim saya</span>
             </button>
+            <button class="tab hidden" role="tab" data-tab="tugas" aria-selected="false">
+                @include('partials.icon', ['name' => 'truck', 'class' => 'size-4'])
+                Tugas pengantaran
+            </button>
             <button class="tab hidden" role="tab" data-tab="statistik" aria-selected="false">
                 @include('partials.icon', ['name' => 'chart', 'class' => 'size-4'])
                 Statistik
@@ -97,6 +101,16 @@
         {{-- ---------- Tab: Klaim ---------- --}}
         <section id="tab-klaim" class="mt-6 hidden" role="tabpanel">
             <div id="list-klaim" class="grid gap-4"></div>
+        </section>
+
+        {{-- ---------- Tab: Tugas pengantaran (relawan) ---------- --}}
+        <section id="tab-tugas" class="mt-6 hidden" role="tabpanel">
+            <h2 class="text-lg font-extrabold tracking-tight">Tugas tersedia</h2>
+            <p class="mt-1 text-sm text-ink/55">Klaim yang sudah disetujui admin dan menunggu relawan.</p>
+            <div id="list-tugas-tersedia" class="mt-4 grid gap-4"></div>
+
+            <h2 class="mt-10 text-lg font-extrabold tracking-tight">Tugas saya</h2>
+            <div id="list-tugas-saya" class="mt-4 grid gap-4"></div>
         </section>
 
         {{-- ---------- Tab: Statistik (admin) ---------- --}}

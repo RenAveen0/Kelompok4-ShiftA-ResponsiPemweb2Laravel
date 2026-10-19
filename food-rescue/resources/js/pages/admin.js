@@ -26,6 +26,7 @@ const WARNA = {
     menuju_lokasi: 'bg-sky-100 text-sky-700',
     diambil: 'bg-sky-100 text-sky-700',
     diantar: 'bg-sky-100 text-sky-700',
+    diambil_relawan: 'bg-sky-100 text-sky-700',
     menunggu_tinjauan: 'bg-sun-100 text-sun-600',
     diproses: 'bg-sky-100 text-sky-700',
     // status buruk
@@ -150,40 +151,68 @@ const RESOURCES = {
         ],
     },
 
-    klaim: {
+       klaim: {
         judul: 'Klaim Donasi',
         ikon: 'inbox',
-        ket: 'Pengajuan klaim dari penerima. Admin dapat memperbarui status klaim.',
+        ket: 'Setujui atau tolak klaim penerima, lalu tugaskan relawan untuk klaim yang sudah disetujui.',
         daftar: '/klaim-donasi',
         ubah: (id) => `/klaim-donasi/${id}`,
         hapus: (id) => `/klaim-donasi/${id}`,
         label: (r) => `klaim #${r.id}`,
+        // Tombol cepat sesuai status klaim
+        aksiTambahan: (r) => {
+            if (r.status === 'diajukan') {
+                return `<button class="btn btn-outline !px-3 !py-1.5 text-xs" data-aksi="status" data-status="disetujui" data-id="${r.id}">Setujui</button>
+                    <button class="btn btn-ghost !px-3 !py-1.5 text-xs hover:!bg-rose-50 hover:!text-rose-600" data-aksi="status" data-status="ditolak" data-id="${r.id}">Tolak</button>`;
+            }
+            if (r.status === 'disetujui' && !r.penugasan) {
+                return `<button class="btn btn-primary !px-3 !py-1.5 text-xs" data-aksi="tugaskan" data-id="${r.id}">Tugaskan relawan</button>`;
+            }
+            return '';
+        },
         kolom: [
             { l: 'Donasi', f: (r) => `<span class="font-semibold">${esc(potong(r.donasi?.judul ?? `Donasi #${r.donasi_id}`, 40))}</span>` },
             { l: 'Penerima', f: (r) => esc(r.penerima?.name ?? `#${r.penerima_id}`) },
             { l: 'Porsi', f: (r) => esc(r.jumlah_porsi) },
+            { l: 'Relawan', f: (r) => esc(r.relawan?.name ?? '-') },
             { l: 'Status', f: (r) => lencana(r.status) },
             { l: 'Diajukan', f: (r) => `<span class="text-xs">${esc(formatTanggal(r.created_at))}</span>` },
         ],
-        form: [{ k: 'status', l: 'Status klaim', tipe: 'select', wajib: true, penuh: true, opsi: opsiStatus('diajukan', 'disetujui', 'ditolak', 'selesai') }],
+        form: [
+            {
+                k: 'status',
+                l: 'Status klaim',
+                tipe: 'select',
+                wajib: true,
+                penuh: true,
+                opsi: opsiStatus('diajukan', 'disetujui', 'ditolak', 'diambil_relawan', 'diantar', 'selesai', 'dibatalkan'),
+            },
+        ],
     },
 
     penugasan: {
         judul: 'Penugasan Relawan',
         ikon: 'truck',
-        ket: 'Penjemputan dan pengantaran donasi oleh relawan.',
+        ket: 'Tugaskan relawan ke klaim yang sudah disetujui, dan pantau tahap pengantarannya.',
         daftar: '/penugasan-relawan',
+        buat: '/penugasan-relawan',
         ubah: (id) => `/penugasan-relawan/${id}`,
         hapus: (id) => `/penugasan-relawan/${id}`,
         label: (r) => `penugasan #${r.id}`,
         kolom: [
-            { l: 'Klaim', f: (r) => `<span class="font-semibold">Klaim #${esc(r.klaim_id)}</span>` },
+            {
+                l: 'Donasi',
+                f: (r) => `<p class="font-semibold">${esc(potong(r.klaim?.donasi?.judul ?? `Klaim #${r.klaim_id}`, 40))}</p>
+                    <p class="text-xs text-ink/50">Klaim #${esc(r.klaim_id)} · ${esc(r.klaim?.penerima?.name ?? '-')}</p>`,
+            },
             { l: 'Relawan', f: (r) => esc(r.relawan?.name ?? `#${r.relawan_id}`) },
             { l: 'Status', f: (r) => lencana(r.status) },
             { l: 'Catatan', f: (r) => esc(potong(r.catatan ?? '-', 50)) },
         ],
         form: [
-            { k: 'status', l: 'Status penugasan', tipe: 'select', wajib: true, penuh: true, opsi: opsiStatus('ditugaskan', 'menuju_lokasi', 'diambil', 'diantar', 'selesai') },
+            { k: 'klaim_id', l: 'Klaim (yang sudah disetujui)', tipe: 'select', wajib: true, penuh: true, opsi: 'klaimSiap', kosong: 'Pilih klaim…', sembunyiSaatUbah: true },
+            { k: 'relawan_id', l: 'Relawan', tipe: 'select', wajib: true, penuh: true, opsi: 'relawan', kosong: 'Pilih relawan…' },
+            { k: 'status', l: 'Status penugasan', tipe: 'select', wajib: true, penuh: true, opsi: opsiStatus('ditugaskan', 'menuju_lokasi', 'diambil', 'diantar', 'selesai'), sembunyiSaatBuat: true },
             { k: 'catatan', l: 'Catatan', tipe: 'textarea', nullable: true, penuh: true },
         ],
     },
@@ -252,7 +281,8 @@ const state = {
     meta: { current_page: 1, last_page: 1 },
     halaman: 1,
     q: '',
-    opsi: { kategori: [], titik: [] },
+    opsi: { kategori: [], titik: [], klaimSiap: [], relawan: [] },
+    awalForm: null,
     opsiDimuat: false,
     sedangUbah: null,
     akanHapus: null,
@@ -313,6 +343,13 @@ async function tampil() {
         await muatRingkasan();
     } else {
         await muatData();
+    }
+    
+    // Datang dari tombol "Tugaskan relawan" di tabel klaim: buka form dengan klaim terpilih
+    if (state.awalForm && state.kunci === 'penugasan') {
+        const awal = state.awalForm;
+        state.awalForm = null;
+        bukaForm(null, awal);
     }
 }
 
@@ -431,20 +468,21 @@ function renderTabel() {
         return;
     }
 
-    const adaAksi = Boolean(r.ubah || r.hapus);
+    const adaAksi = Boolean(r.ubah || r.hapus || r.aksiTambahan);
     const kepala = r.kolom.map((k) => `<th scope="col" class="px-5 py-3.5 font-semibold whitespace-nowrap">${esc(k.l)}</th>`).join('') + (adaAksi ? '<th scope="col" class="px-5 py-3.5 text-right font-semibold">Aksi</th>' : '');
 
     const isi = tampilan
         .map((b) => {
             const sel = r.kolom.map((k) => `<td class="px-5 py-4 align-middle">${k.f(b)}</td>`).join('');
-            let aksi = '';
+                        let aksi = '';
             if (adaAksi) {
+                const tambahan = r.aksiTambahan ? r.aksiTambahan(b) : '';
                 const ubah = r.ubah ? `<button class="btn btn-ghost !p-2" data-aksi="ubah" data-id="${b.id}" aria-label="Ubah" title="Ubah">${ikon('pencil', 'size-4.5')}</button>` : '';
                 const hapus =
                     r.hapus && (!r.bisaHapus || r.bisaHapus(b, state))
                         ? `<button class="btn btn-ghost !p-2 hover:!bg-rose-50 hover:!text-rose-600" data-aksi="hapus" data-id="${b.id}" aria-label="Hapus" title="Hapus">${ikon('trash', 'size-4.5')}</button>`
                         : '';
-                aksi = `<td class="px-5 py-4 text-right whitespace-nowrap">${ubah}${hapus}</td>`;
+                aksi = `<td class="px-5 py-4 text-right whitespace-nowrap">${tambahan}${ubah}${hapus}</td>`;
             }
             return `<tr class="transition hover:bg-brand-50/50">${sel}${aksi}</tr>`;
         })
@@ -489,6 +527,19 @@ async function pastikanOpsi() {
     }
 }
 
+// Opsi klaim dan relawan selalu dimuat ulang karena datanya berubah-ubah
+async function muatOpsiPenugasan() {
+    try {
+        const [klaim, relawan] = await Promise.all([api('/klaim-donasi'), api('/admin/relawan')]);
+        state.opsi.klaimSiap = (klaim.data ?? [])
+            .filter((k) => k.status === 'disetujui' && !k.penugasan)
+            .map((k) => ({ v: k.id, l: `#${k.id} · ${k.donasi?.judul ?? 'Donasi'} → ${k.penerima?.name ?? 'penerima'} (${k.jumlah_porsi} porsi)` }));
+        state.opsi.relawan = (relawan.data ?? []).map((u) => ({ v: u.id, l: u.name }));
+    } catch {
+        /* pilihan kosong; galat akan terlihat saat menyimpan */
+    }
+}
+
 const keInputLokal = (iso) => {
     if (!iso) return '';
     const d = new Date(iso);
@@ -499,6 +550,7 @@ const keInputLokal = (iso) => {
 
 function htmlField(f, nilai, ubah) {
     if (f.sembunyiSaatBuat && !ubah) return '';
+    if (f.sembunyiSaatUbah && ubah) return '';
     const id = `f-${f.k}`;
     const lebar = f.penuh ? 'sm:col-span-2' : '';
     const wajib = f.wajib ? ' <span class="text-rose-500">*</span>' : '';
@@ -528,14 +580,15 @@ function htmlField(f, nilai, ubah) {
     return `<div class="${lebar}"><label for="${id}" class="label">${esc(f.l)}${wajib}</label>${input}${galat}</div>`;
 }
 
-async function bukaForm(baris = null) {
+async function bukaForm(baris = null, awal = {}) {
     const r = res();
     state.sedangUbah = baris;
     await pastikanOpsi();
+    if (state.kunci === 'penugasan') await muatOpsiPenugasan();
 
     $('form-judul').textContent = `${baris ? 'Ubah' : 'Tambah'} ${r.judul.toLowerCase()}`;
     $('form-alert').classList.add('hidden');
-    $('form-isi').innerHTML = r.form.map((f) => htmlField(f, baris?.[f.k], Boolean(baris))).join('');
+    $('form-isi').innerHTML = r.form.map((f) => htmlField(f, baris ? baris[f.k] : awal[f.k], Boolean(baris))).join('');
     bukaModal('modal-form');
 }
 
@@ -613,6 +666,22 @@ function pasangHapus() {
     });
 }
 
+// Setujui / tolak klaim dengan satu klik
+async function ubahStatusCepat(r, baris, tombol) {
+    const status = tombol.dataset.status;
+    if (status === 'ditolak' && !window.confirm(`Tolak klaim #${baris.id}? Porsi akan dikembalikan ke donasi.`)) return;
+
+    tombol.disabled = true;
+    try {
+        await api(r.ubah(baris.id), { method: 'PUT', body: { status } });
+        toast(`Klaim #${baris.id} ${status}`, 'sukses');
+        await muatData();
+    } catch (err) {
+        toast(err.message, 'galat');
+        tombol.disabled = false;
+    }
+}
+
 // ---------- Inisialisasi ----------
 export default async function admin() {
     const user = wajibLogin();
@@ -630,7 +699,7 @@ export default async function admin() {
     pasangForm();
     pasangHapus();
 
-    // Aksi pada tabel (delegasi event)
+        // Aksi pada tabel (delegasi event)
     $('isi').addEventListener('click', (e) => {
         const tombol = e.target.closest('[data-aksi]');
         if (!tombol) return;
@@ -638,12 +707,18 @@ export default async function admin() {
         const baris = state.baris.find((b) => String(b.id) === tombol.dataset.id);
         if (!baris) return;
 
-        if (tombol.dataset.aksi === 'ubah') {
+        const aksi = tombol.dataset.aksi;
+        if (aksi === 'ubah') {
             bukaForm(baris);
-        } else {
+        } else if (aksi === 'hapus') {
             state.akanHapus = { r, baris };
             $('hapus-ket').textContent = `“${r.label(baris)}” akan dihapus permanen dan tidak dapat dikembalikan.`;
             bukaModal('modal-hapus');
+        } else if (aksi === 'status') {
+            ubahStatusCepat(r, baris, tombol);
+        } else if (aksi === 'tugaskan') {
+            state.awalForm = { klaim_id: baris.id };
+            location.hash = '#penugasan';
         }
     });
 

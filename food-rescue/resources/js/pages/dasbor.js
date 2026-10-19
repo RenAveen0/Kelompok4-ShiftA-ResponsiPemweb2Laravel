@@ -15,6 +15,12 @@ const BADGE_KLAIM = {
     diajukan: 'bg-sun-100 text-sun-600',
     disetujui: 'bg-brand-100 text-brand-700',
     ditolak: 'bg-rose-50 text-rose-700',
+    dibatalkan: 'bg-rose-50 text-rose-700',
+    ditugaskan: 'bg-sun-100 text-sun-600',
+    menuju_lokasi: 'bg-sky-100 text-sky-700',
+    diambil: 'bg-sky-100 text-sky-700',
+    diambil_relawan: 'bg-sky-100 text-sky-700',
+    diantar: 'bg-sky-100 text-sky-700',
     selesai: 'bg-brand-600 text-white',
 };
 
@@ -35,6 +41,8 @@ const state = {
     kategori: [],
     titik: [],
     klaim: [],
+    tersedia: [],
+    tugas: [],
     stat: null,
     q: '',
     kategoriId: '',
@@ -60,6 +68,7 @@ function renderHeader() {
     $('btn-buat').classList.toggle('hidden', !adalah('donatur', 'admin'));
     $('link-admin').classList.toggle('hidden', !adalah('admin'));
     document.querySelector('[data-tab="klaim"]').classList.toggle('hidden', !adalah('penerima', 'admin'));
+    document.querySelector('[data-tab="tugas"]').classList.toggle('hidden', !adalah('relawan'));
     document.querySelector('[data-tab="statistik"]').classList.toggle('hidden', !adalah('admin'));
     $('label-klaim').textContent = adalah('admin') ? 'Semua klaim' : 'Klaim saya';
 }
@@ -113,7 +122,7 @@ function renderRingkasan() {
 function pilihTab(nama) {
     state.tab = nama;
     document.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === nama)));
-    ['donasi', 'klaim', 'statistik'].forEach((n) => $(`tab-${n}`).classList.toggle('hidden', n !== nama));
+        ['donasi', 'klaim', 'tugas', 'statistik'].forEach((n) => $(`tab-${n}`).classList.toggle('hidden', n !== nama));
 }
 
 // ---------- Donasi ----------
@@ -271,6 +280,96 @@ async function muatKlaim() {
     } catch (err) {
         $('list-klaim').innerHTML = `<div class="card p-10 text-center font-medium text-rose-600">${esc(err.message)}</div>`;
     }
+}
+
+// ---------- Tugas relawan ----------
+const LANJUT_TUGAS = {
+    ditugaskan: { status: 'menuju_lokasi', label: 'Menuju lokasi' },
+    menuju_lokasi: { status: 'diambil', label: 'Makanan sudah diambil' },
+    diambil: { status: 'diantar', label: 'Sedang diantar' },
+    diantar: { status: 'selesai', label: 'Selesai diantar' },
+};
+
+const kosongTugas = (teks) => `<div class="card px-6 py-10 text-center text-sm text-ink/55">${esc(teks)}</div>`;
+
+function renderTugas() {
+    $('list-tugas-tersedia').innerHTML = state.tersedia.length
+        ? state.tersedia
+              .map(
+                  (k) => `
+        <article class="card flex flex-wrap items-center justify-between gap-4 p-5 animate-pop">
+            <div class="flex min-w-0 items-center gap-4">
+                <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">${ikon('truck', 'size-6')}</span>
+                <div class="min-w-0">
+                    <p class="truncate font-bold">${esc(k.donasi?.judul ?? `Donasi #${k.donasi_id}`)}</p>
+                    <p class="mt-0.5 text-sm text-ink/55">${esc(k.jumlah_porsi)} porsi · ambil di ${esc(k.donasi?.lokasi ?? '-')}</p>
+                    <p class="text-sm text-ink/55">Antar ke ${esc(k.penerima?.name ?? '-')}${k.penerima?.alamat ? ` · ${esc(k.penerima.alamat)}` : ''}</p>
+                </div>
+            </div>
+            <button class="btn btn-primary !py-2" data-ambil="${k.id}">Ambil tugas</button>
+        </article>`,
+              )
+              .join('')
+        : kosongTugas('Belum ada tugas yang tersedia.');
+
+    $('list-tugas-saya').innerHTML = state.tugas.length
+        ? state.tugas
+              .map((p) => {
+                  const d = p.klaim?.donasi;
+                  const lanjut = LANJUT_TUGAS[p.status];
+                  return `
+        <article class="card flex flex-wrap items-center justify-between gap-4 p-5 animate-pop">
+            <div class="flex min-w-0 items-center gap-4">
+                <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">${ikon('truck', 'size-6')}</span>
+                <div class="min-w-0">
+                    <p class="truncate font-bold">${esc(d?.judul ?? `Klaim #${p.klaim_id}`)}</p>
+                    <p class="mt-0.5 text-sm text-ink/55">Ambil di ${esc(d?.lokasi ?? '-')} · antar ke ${esc(p.klaim?.penerima?.name ?? '-')}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="badge capitalize ${BADGE_KLAIM[p.status] ?? 'bg-ink/5 text-ink/60'}">${esc(p.status.replaceAll('_', ' '))}</span>
+                ${lanjut ? `<button class="btn btn-primary !py-2" data-lanjut="${p.id}" data-status="${lanjut.status}">${esc(lanjut.label)}</button>` : ''}
+            </div>
+        </article>`;
+              })
+              .join('')
+        : kosongTugas('Anda belum mengambil tugas apa pun.');
+}
+
+async function muatTugas() {
+    if (!adalah('relawan')) return;
+    try {
+        const [tersedia, saya] = await Promise.all([api('/klaim-donasi'), api('/penugasan-relawan')]);
+        state.tersedia = tersedia.data ?? [];
+        state.tugas = saya.data ?? [];
+        renderTugas();
+    } catch (err) {
+        $('list-tugas-tersedia').innerHTML = `<div class="card p-10 text-center font-medium text-rose-600">${esc(err.message)}</div>`;
+    }
+}
+
+function pasangTugas() {
+    $('tab-tugas').addEventListener('click', async (e) => {
+        const ambil = e.target.closest('[data-ambil]');
+        const lanjut = e.target.closest('[data-lanjut]');
+        const tombol = ambil ?? lanjut;
+        if (!tombol) return;
+
+        tombol.disabled = true;
+        try {
+            if (ambil) {
+                await api('/penugasan-relawan', { method: 'POST', body: { klaim_id: Number(ambil.dataset.ambil) } });
+                toast('Tugas berhasil diambil 🚚', 'sukses');
+            } else {
+                await api(`/penugasan-relawan/${lanjut.dataset.lanjut}`, { method: 'PUT', body: { status: lanjut.dataset.status } });
+                toast('Status tugas diperbarui', 'sukses');
+            }
+        } catch (err) {
+            toast(err.message, 'galat');
+            tombol.disabled = false;
+        }
+        await muatTugas(); // selalu segarkan, mis. bila tugas sudah diambil relawan lain
+    });
 }
 
 // ---------- Statistik admin ----------
@@ -508,5 +607,5 @@ export default async function dasbor() {
 
     mulaiRealtime();
     await muatMaster();
-    await Promise.all([muatDonasi(1), muatKlaim(), muatStatistik()]);
+    await Promise.all([muatDonasi(1), muatKlaim(), muatTugas(), muatStatistik()]);
 }

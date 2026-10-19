@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Informasi Kelompok
-- **Nomor Kelompok:** Kelompok 04
+- **Nomor Kelompok:** Kelompok 4
 - **Shift Praktikum:** Shift A
 
 ---
