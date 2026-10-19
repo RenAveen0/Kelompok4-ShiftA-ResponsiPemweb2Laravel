@@ -6,4 +6,158 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Warna utama: hijau segar */
+    --color-brand-50: #effcf4;
+    --color-brand-100: #d9f7e5;
+    --color-brand-200: #b5eecd;
+    --color-brand-300: #82e0ae;
+    --color-brand-400: #4acb8a;
+    --color-brand-500: #25b06f;
+    --color-brand-600: #178d58;
+    --color-brand-700: #147148;
+    --color-brand-800: #14593b;
+    --color-brand-900: #114a33;
+    --color-brand-950: #082a1d;
+
+    /* Aksen hangat: oranye matahari */
+    --color-sun-100: #fef0d0;
+    --color-sun-300: #fcd78a;
+    --color-sun-400: #f9bd4f;
+    --color-sun-500: #f5a524;
+    --color-sun-600: #d9840f;
+
+    --color-ink: #0c1f17;
+
+    --shadow-soft: 0 10px 30px -10px rgb(23 141 88 / 0.45);
+    --shadow-card: 0 1px 2px rgb(12 31 23 / 0.04), 0 10px 30px -12px rgb(12 31 23 / 0.14);
+    --shadow-float: 0 24px 60px -20px rgb(8 42 29 / 0.35);
+
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-float-slow: float 9s ease-in-out infinite;
+    --animate-pop: pop 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-12px);
+        }
+    }
+
+    @keyframes pop {
+        from {
+            opacity: 0;
+            transform: translateY(8px) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-white font-sans text-ink antialiased;
+    }
+
+    ::selection {
+        background: var(--color-brand-200);
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+    .btn-lg {
+        @apply px-6 py-3.5 text-base;
+    }
+    .btn-primary {
+        @apply bg-brand-600 text-white shadow-soft hover:bg-brand-700 active:scale-[0.98];
+    }
+    .btn-soft {
+        @apply bg-brand-50 text-brand-800 hover:bg-brand-100;
+    }
+    .btn-outline {
+        @apply border border-ink/10 bg-white text-ink hover:border-brand-300 hover:bg-brand-50;
+    }
+    .btn-ghost {
+        @apply text-ink/70 hover:bg-ink/5 hover:text-ink;
+    }
+    .btn-danger {
+        @apply bg-rose-50 text-rose-700 hover:bg-rose-100;
+    }
+
+    .field {
+        @apply block w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink transition placeholder:text-ink/40 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 focus:outline-none;
+    }
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-ink/80;
+    }
+    .field-error {
+        @apply mt-1.5 text-xs font-medium text-rose-600;
+    }
+
+    .card {
+        @apply rounded-2xl border border-ink/5 bg-white shadow-card;
+    }
+    .badge {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+    }
+    .skeleton {
+        @apply animate-pulse rounded-xl bg-ink/5;
+    }
+    .tab {
+        @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-ink/60 transition hover:text-ink;
+    }
+    .tab[aria-selected='true'] {
+        @apply bg-brand-600 text-white shadow-soft;
+    }
+}
+
+@layer utilities {
+    .text-gradient {
+        background-image: linear-gradient(120deg, var(--color-brand-600), var(--color-brand-400) 55%, var(--color-sun-500));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .bg-grid {
+        background-image:
+            linear-gradient(to right, rgb(12 31 23 / 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgb(12 31 23 / 0.05) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+}
+
+/* Animasi muncul saat di-scroll (hanya aktif bila JS berjalan) */
+.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+        opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+        transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 }

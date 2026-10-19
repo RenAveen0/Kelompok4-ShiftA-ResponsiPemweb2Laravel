@@ -17,6 +17,11 @@
                     <span id="live-teks">Offline</span>
                 </span>
 
+                <a id="link-admin" href="{{ route('admin') }}" class="btn btn-soft hidden !py-2">
+                    @include('partials.icon', ['name' => 'shield', 'class' => 'size-4'])
+                    Panel Admin
+                </a>
+
                 <div class="flex items-center gap-2.5 rounded-full border border-ink/5 bg-white py-1 pr-3 pl-1 shadow-card">
                     <span id="user-avatar" class="grid size-8 place-items-center rounded-full bg-linear-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">?</span>
                     <div class="hidden leading-tight sm:block">
