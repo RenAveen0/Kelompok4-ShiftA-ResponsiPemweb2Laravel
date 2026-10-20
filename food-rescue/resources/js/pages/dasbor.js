@@ -568,6 +568,7 @@ export default async function dasbor() {
     renderHeader();
     pasangFormBuat();
     pasangFormKlaim();
+    pasangTugas();
 
     document.querySelectorAll('[data-tab]').forEach((t) => t.addEventListener('click', () => pilihTab(t.dataset.tab)));
     $('cari').addEventListener('input', (e) => {
