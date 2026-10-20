@@ -60,7 +60,8 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $abilities = self::ABILITIES[$user->role] ?? ['*'];
+        // Peran tak dikenal tidak boleh mendapat hak penuh; default-nya tanpa ability
+        $abilities = self::ABILITIES[$user->role] ?? [];
         $token = $user->createToken('token-akses', $abilities)->plainTextToken;
 
         return response()->json([

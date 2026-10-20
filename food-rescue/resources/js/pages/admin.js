@@ -98,8 +98,8 @@ const RESOURCES = {
     titik: {
         judul: 'Titik Lokasi',
         ikon: 'map',
-        ket: 'Posko dan zona penjemputan makanan. API hanya menampilkan titik yang berstatus aktif.',
-        daftar: '/titik-lokasi',
+        ket: 'Posko dan zona penjemputan makanan. Admin melihat semua titik, termasuk yang nonaktif.',
+        daftar: '/titik-lokasi?semua=1',
         buat: '/admin/titik-lokasi',
         ubah: (id) => `/admin/titik-lokasi/${id}`,
         hapus: (id) => `/admin/titik-lokasi/${id}`,

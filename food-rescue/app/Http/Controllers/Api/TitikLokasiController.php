@@ -9,9 +9,18 @@ use Illuminate\Http\Request;
 
 class TitikLokasiController extends Controller
 {
-    public function index(): JsonResponse
+    // Pengguna biasa hanya melihat titik aktif. Admin dapat menambahkan ?semua=1
+    // agar titik nonaktif juga tampil (dan bisa diaktifkan kembali).
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['sukses' => true, 'data' => TitikLokasi::where('is_aktif', true)->get()]);
+        $semua = $request->boolean('semua') && $request->user()->role === 'admin';
+
+        $titik = TitikLokasi::query()
+            ->when(! $semua, fn ($q) => $q->where('is_aktif', true))
+            ->orderBy('nama')
+            ->get();
+
+        return response()->json(['sukses' => true, 'data' => $titik]);
     }
 
     public function store(Request $request): JsonResponse
@@ -19,8 +28,8 @@ class TitikLokasiController extends Controller
         $validated = $request->validate([
             'nama'      => ['required', 'string', 'max:150'],
             'alamat'    => ['required', 'string'],
-            'latitude'  => ['required', 'numeric'],
-            'longitude' => ['required', 'numeric'],
+            'latitude'  => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
             'is_aktif'  => ['boolean'],
         ]);
 
@@ -45,8 +54,8 @@ class TitikLokasiController extends Controller
         $validated = $request->validate([
             'nama'      => ['sometimes', 'string', 'max:150'],
             'alamat'    => ['sometimes', 'string'],
-            'latitude'  => ['sometimes', 'numeric'],
-            'longitude' => ['sometimes', 'numeric'],
+            'latitude'  => ['sometimes', 'numeric', 'between:-90,90'],
+            'longitude' => ['sometimes', 'numeric', 'between:-180,180'],
             'is_aktif'  => ['boolean'],
         ]);
 

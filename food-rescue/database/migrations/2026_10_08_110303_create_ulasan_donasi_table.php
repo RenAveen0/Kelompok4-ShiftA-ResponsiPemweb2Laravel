@@ -8,6 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('ulasan_donasi', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('klaim_id')->unique()->constrained('klaim_donasi')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->unsignedTinyInteger('rating');

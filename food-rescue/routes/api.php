@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- MODUL DIFA: Profil & Master Data ---
     Route::get('user/profil', [UserController::class, 'profil']);
     Route::put('user/profil', [UserController::class, 'updateProfil']);
+    Route::put('user/password', [UserController::class, 'ubahPassword']);
     
     Route::get('kategori-makanan', [KategoriMakananController::class, 'index']);
     Route::get('kategori-makanan/{id}', [KategoriMakananController::class, 'show']);
@@ -43,6 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('relawan', [UserController::class, 'relawan']);
         
         Route::get('users', [UserController::class, 'index']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::get('users/{id}', [UserController::class, 'show']);
+        Route::put('users/{id}', [UserController::class, 'update']);
         Route::delete('users/{id}', [UserController::class, 'destroy']);
 
         Route::post('kategori-makanan', [KategoriMakananController::class, 'store']);
@@ -74,20 +78,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('penugasan-relawan/{id}', [PenugasanRelawanController::class, 'destroy'])->middleware('role:admin');
 
     // --- MODUL NESA: Bukti Serah Terima, Ulasan, & Laporan Kelayakan ---
+    // Bukti serah terima: unggah/ubah = relawan & admin, hapus = admin, lihat = semua (dibatasi di controller)
     Route::get('bukti-serah-terima', [BuktiSerahTerimaController::class, 'index']);
-    Route::post('bukti-serah-terima', [BuktiSerahTerimaController::class, 'store']);
     Route::get('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'show']);
-    Route::delete('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'destroy']);
+    Route::middleware('role:relawan,admin')->group(function () {
+        Route::post('bukti-serah-terima', [BuktiSerahTerimaController::class, 'store']);
+        Route::put('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'update']);
+    });
+    Route::delete('bukti-serah-terima/{id}', [BuktiSerahTerimaController::class, 'destroy'])->middleware('role:admin');
 
+    // Ulasan: buat/ubah = penerima, hapus = pemilik atau admin, lihat = semua
     Route::get('ulasan', [UlasanDonasiController::class, 'index']);
-    Route::post('ulasan', [UlasanDonasiController::class, 'store']);
     Route::get('ulasan/{id}', [UlasanDonasiController::class, 'show']);
-    Route::put('ulasan/{id}', [UlasanDonasiController::class, 'update']);
-    Route::delete('ulasan/{id}', [UlasanDonasiController::class, 'destroy']);
+    Route::post('ulasan', [UlasanDonasiController::class, 'store'])->middleware('role:penerima');
+    Route::put('ulasan/{id}', [UlasanDonasiController::class, 'update'])->middleware('role:penerima');
+    Route::delete('ulasan/{id}', [UlasanDonasiController::class, 'destroy'])->middleware('role:penerima,admin');
 
+    // Laporan kelayakan: kirim = penerima, tindak lanjut/hapus = admin, lihat = dibatasi di controller
     Route::get('laporan-kelayakan', [LaporanKelayakanController::class, 'index']);
-    Route::post('laporan-kelayakan', [LaporanKelayakanController::class, 'store']);
     Route::get('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'show']);
-    Route::put('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'update']);
-    Route::delete('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'destroy']);
+    Route::post('laporan-kelayakan', [LaporanKelayakanController::class, 'store'])->middleware('role:penerima');
+    Route::put('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'update'])->middleware('role:admin');
+    Route::delete('laporan-kelayakan/{id}', [LaporanKelayakanController::class, 'destroy'])->middleware('role:admin');
 });

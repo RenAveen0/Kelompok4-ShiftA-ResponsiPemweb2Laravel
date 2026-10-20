@@ -9,7 +9,8 @@ return new class extends Migration {
     {
         Schema::create('bukti_serah_terima', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('klaim_id')->constrained('klaim_donasi')->cascadeOnDelete();
+            // Satu klaim hanya punya satu bukti serah terima (jika salah unggah, gunakan PUT)
+            $table->foreignId('klaim_id')->unique()->constrained('klaim_donasi')->cascadeOnDelete();
             $table->foreignId('relawan_id')->constrained('users')->cascadeOnDelete();
             $table->string('foto_bukti');
             $table->text('catatan')->nullable();

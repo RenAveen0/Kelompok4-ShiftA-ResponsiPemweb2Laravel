@@ -21,8 +21,8 @@ use App\Models\UlasanDonasi;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-// Ubah ke true setelah migrasi ulasan_donasi dan laporan_kelayakan diperbaiki.
-$denganFeedback = false;
+// Migrasi ulasan_donasi (kolom id) sudah diperbaiki; jalankan `php artisan migrate:fresh --seed` dulu.
+$denganFeedback = true;
 
 $ringkasan = DB::transaction(function () use ($denganFeedback) {
 
