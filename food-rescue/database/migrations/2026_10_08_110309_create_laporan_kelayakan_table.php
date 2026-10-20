@@ -9,14 +9,12 @@ return new class extends Migration {
     {
         Schema::create('laporan_kelayakan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('klaim_id')->constrained('klaim_donasi')->cascadeOnDelete();
-            $table->foreignId('pelapor_id')->constrained('users')->cascadeOnDelete();
-            $table->string('jenis');
-            $table->text('deskripsi');
-            $table->string('foto')->nullable();
-            $table->enum('status', ['baru', 'ditinjau', 'selesai'])->default('baru');
-            $table->timestamps();
             $table->foreignId('donasi_id')->constrained('donasi_makanan')->cascadeOnDelete();
+            $table->foreignId('pelapor_id')->constrained('users')->cascadeOnDelete();
+            $table->text('alasan');
+            $table->string('foto_bukti')->nullable();
+            $table->enum('status', ['menunggu_tinjauan', 'diproses', 'ditindaklanjuti', 'ditolak'])->default('menunggu_tinjauan');
+            $table->timestamps();
         });
     }
 

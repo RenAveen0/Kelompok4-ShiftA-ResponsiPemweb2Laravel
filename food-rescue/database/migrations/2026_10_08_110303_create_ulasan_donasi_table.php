@@ -8,11 +8,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('ulasan_donasi', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('klaim_id')->unique()->constrained('klaim_donasi')->cascadeOnDelete();
-            $table->foreignId('penerima_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->unsignedTinyInteger('rating');
-            $table->text('catatan_kondisi')->nullable();
+            $table->text('komentar')->nullable();
             $table->timestamps();
         });
     }
